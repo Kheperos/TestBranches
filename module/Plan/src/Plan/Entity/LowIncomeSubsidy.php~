@@ -1,0 +1,74 @@
+<?php
+
+namespace Plan\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * LowIncomeSubsidy
+ *
+ * @ORM\Table(name="low_income_subsidy", indexes={@ORM\Index(name="IDX_560C4CC03B2CE74A", columns={"ContractId"}), @ORM\Index(name="IDX_560C4CC04B391459", columns={"PlanId"})})
+ * @ORM\Entity
+ */
+class LowIncomeSubsidy
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="bigint", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="subsidy_level_100", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $subsidyLevel100;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="subsidy_level_75", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $subsidyLevel75;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="subsidy_level_50", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $subsidyLevel50;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="subsidy_level_25", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $subsidyLevel25;
+
+    /**
+     * @var \Plan\Entity\Contract
+     *
+     * @ORM\ManyToOne(targetEntity="Plan\Entity\Contract")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ContractId", referencedColumnName="id")
+     * })
+     */
+    private $contractid;
+
+    /**
+     * @var \Plan\Entity\Plan
+     *
+     * @ORM\ManyToOne(targetEntity="Plan\Entity\Plan")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="PlanId", referencedColumnName="id")
+     * })
+     */
+    private $planid;
+
+
+}
+

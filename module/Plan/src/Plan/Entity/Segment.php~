@@ -1,0 +1,66 @@
+<?php
+
+namespace Plan\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Segment
+ *
+ * @ORM\Table(name="segment")
+ * @ORM\Entity
+ */
+class Segment
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="segment_id", type="integer", nullable=true)
+     */
+    private $segmentId;
+
+
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set segmentId
+     *
+     * @param integer $segmentId
+     *
+     * @return Segment
+     */
+    public function setSegmentId($segmentId)
+    {
+        $this->segmentId = $segmentId;
+
+        return $this;
+    }
+
+    /**
+     * Get segmentId
+     *
+     * @return integer
+     */
+    public function getSegmentId()
+    {
+        return $this->segmentId;
+    }
+}
