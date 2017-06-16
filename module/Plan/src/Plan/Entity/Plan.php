@@ -50,6 +50,34 @@ class Plan
     private $geoName;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="type", type="integer", nullable=true)
+     */
+    private $type;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type_description", type="string", length=100, nullable=true)
+     */
+    private $typeDescription;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="status_code", type="integer", nullable=true)
+     */
+    private $statusCode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status_description", type="string", length=30, nullable=true)
+     */
+    private $statusDescription;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="subsidy_level_100", type="decimal", precision=11, scale=2, nullable=false)
@@ -76,26 +104,6 @@ class Plan
      * @ORM\Column(name="subsidy_level_25", type="decimal", precision=11, scale=2, nullable=false)
      */
     private $subsidyLevel25;
-
-    /**
-     * @var \Plan\Entity\PlanType
-     *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\PlanType", cascade={"persist", "remove"})
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="plan_type", referencedColumnName="id")
-     * })
-     */
-    private $planType;
-
-    /**
-     * @var \Plan\Entity\TaskStatus
-     *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\TaskStatus", cascade={"persist", "remove"})
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="task_status", referencedColumnName="id")
-     * })
-     */
-    private $taskStatus;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -324,54 +332,6 @@ class Plan
     }
 
     /**
-     * Set planType
-     *
-     * @param \Plan\Entity\PlanType $planType
-     *
-     * @return Plan
-     */
-    public function setPlanType(\Plan\Entity\PlanType $planType = null)
-    {
-        $this->planType = $planType;
-
-        return $this;
-    }
-
-    /**
-     * Get planType
-     *
-     * @return \Plan\Entity\PlanType
-     */
-    public function getPlanType()
-    {
-        return $this->planType;
-    }
-
-    /**
-     * Set taskStatus
-     *
-     * @param \Plan\Entity\TaskStatus $taskStatus
-     *
-     * @return Plan
-     */
-    public function setTaskStatus(\Plan\Entity\TaskStatus $taskStatus = null)
-    {
-        $this->taskStatus = $taskStatus;
-
-        return $this;
-    }
-
-    /**
-     * Get taskStatus
-     *
-     * @return \Plan\Entity\TaskStatus
-     */
-    public function getTaskStatus()
-    {
-        return $this->taskStatus;
-    }
-
-    /**
      * Add contract
      *
      * @param $contract
@@ -417,4 +377,100 @@ class Plan
         return $this->contract;
     }
 
+
+    /**
+     * Set type
+     *
+     * @param integer $type
+     *
+     * @return Plan
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return integer
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set typeDescription
+     *
+     * @param string $typeDescription
+     *
+     * @return Plan
+     */
+    public function setTypeDescription($typeDescription)
+    {
+        $this->typeDescription = $typeDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get typeDescription
+     *
+     * @return string
+     */
+    public function getTypeDescription()
+    {
+        return $this->typeDescription;
+    }
+
+    /**
+     * Set statusCode
+     *
+     * @param integer $statusCode
+     *
+     * @return Plan
+     */
+    public function setStatusCode($statusCode)
+    {
+        $this->statusCode = $statusCode;
+
+        return $this;
+    }
+
+    /**
+     * Get statusCode
+     *
+     * @return integer
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    /**
+     * Set statusDescription
+     *
+     * @param string $statusDescription
+     *
+     * @return Plan
+     */
+    public function setStatusDescription($statusDescription)
+    {
+        $this->statusDescription = $statusDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get statusDescription
+     *
+     * @return string
+     */
+    public function getStatusDescription()
+    {
+        return $this->statusDescription;
+    }
 }

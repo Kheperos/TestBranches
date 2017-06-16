@@ -7,8 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Geography
  *
- * @ORM\Table(name="geography")
- * @ORM\Entity
+ * @ORM\Table(name="geography", indexes={@ORM\Index(name="zip_code_idx", columns={"zip_code"})})
+ * @ORM\Entity(readOnly=true)
  */
 class Geography
 {
@@ -55,22 +55,6 @@ class Geography
      * @ORM\Column(name="county_name", type="string", length=20, nullable=false)
      */
     private $countyName;
-
-    /**
-     * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", mappedBy="geography")
-     */
-    private $constract;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->constract = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
 
     /**
      * Get id
@@ -200,39 +184,5 @@ class Geography
     public function getCountyName()
     {
         return $this->countyName;
-    }
-
-    /**
-     * Add constract
-     *
-     * @param \Plan\Entity\Contract $constract
-     *
-     * @return Geography
-     */
-    public function addConstract(\Plan\Entity\Contract $constract)
-    {
-        $this->constract[] = $constract;
-
-        return $this;
-    }
-
-    /**
-     * Remove constract
-     *
-     * @param \Plan\Entity\Contract $constract
-     */
-    public function removeConstract(\Plan\Entity\Contract $constract)
-    {
-        $this->constract->removeElement($constract);
-    }
-
-    /**
-     * Get constract
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getConstract()
-    {
-        return $this->constract;
     }
 }

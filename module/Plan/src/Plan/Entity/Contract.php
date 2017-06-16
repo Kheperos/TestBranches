@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Contract
  *
- * @ORM\Table(name="contract", indexes={@ORM\Index(name="IDX_E98F28599E6B1585", columns={"organisation_id"})})
+ * @ORM\Table(name="contract", indexes={@ORM\Index(name="IDX_E98F28599E6B1585", columns={"organisation_id"}), @ORM\Index(name="contract_index", columns={"contract_id"})})
  * @ORM\Entity
  */
 class Contract
@@ -48,7 +48,14 @@ class Contract
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Geography", inversedBy="contract")
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Plan", mappedBy="contract")
+     */
+    private $plan;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Geography")
      * @ORM\JoinTable(name="contract_geography",
      *   joinColumns={
      *     @ORM\JoinColumn(name="contract_id", referencedColumnName="id")
@@ -197,4 +204,38 @@ class Contract
         return $this->geography;
     }
 
+
+    /**
+     * Add plan
+     *
+     * @param \Plan\Entity\Plan $plan
+     *
+     * @return Contract
+     */
+    public function addPlan(\Plan\Entity\Plan $plan)
+    {
+        $this->plan[] = $plan;
+
+        return $this;
+    }
+
+    /**
+     * Remove plan
+     *
+     * @param \Plan\Entity\Plan $plan
+     */
+    public function removePlan(\Plan\Entity\Plan $plan)
+    {
+        $this->plan->removeElement($plan);
+    }
+
+    /**
+     * Get plan
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getPlan()
+    {
+        return $this->plan;
+    }
 }

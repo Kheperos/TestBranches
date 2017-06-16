@@ -49,11 +49,15 @@ class UpdateDb
             if ($result){
                 $this->contracts[$array['Contract_ID'] . $array['Contract_Year']]->setGeography($result);
             }
+            if ($index > 10) {
+                dump($this->contracts);
+                die ();
+            }
             echo ($index . "\n");
         }
 
         foreach ($this->contracts as $contract){
-            $this->objectManager->persist($this->hydrator->hydrate($contract->extract($contract), new ContractEntity()));
+            $this->objectManager->persist($this->hydrator->hydrate($contract->extract(), new ContractEntity()));
         }
         $this->objectManager->flush();
     }

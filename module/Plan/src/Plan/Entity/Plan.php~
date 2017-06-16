@@ -50,6 +50,34 @@ class Plan
     private $geoName;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="type", type="integer", nullable=true)
+     */
+    private $type;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type_description", type="string", length=100, nullable=true)
+     */
+    private $typeDescription;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="status_code", type="integer", nullable=true)
+     */
+    private $statusCode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status_description", type="string", length=30, nullable=true)
+     */
+    private $statusDescription;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="subsidy_level_100", type="decimal", precision=11, scale=2, nullable=false)
@@ -78,29 +106,9 @@ class Plan
     private $subsidyLevel25;
 
     /**
-     * @var \Plan\Entity\PlanType
-     *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\PlanType")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="plan_type", referencedColumnName="id")
-     * })
-     */
-    private $planType;
-
-    /**
-     * @var \Plan\Entity\TaskStatus
-     *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\TaskStatus")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="task_status", referencedColumnName="id")
-     * })
-     */
-    private $taskStatus;
-
-    /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan")
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan", cascade={"persist", "remove"})
      * @ORM\JoinTable(name="plan_contract",
      *   joinColumns={
      *     @ORM\JoinColumn(name="plan_id", referencedColumnName="id")
@@ -324,50 +332,49 @@ class Plan
     }
 
     /**
-     * Set planType
+     * Add contract
      *
-     * @param \Plan\Entity\PlanType $planType
+     * @param $contract
      *
      * @return Plan
      */
-    public function setPlanType(\Plan\Entity\PlanType $planType = null)
+    public function addContract($contract)
     {
-        $this->planType = $planType;
+        if ($contract instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($contract as $singleContract) {
+                $this->contract[] = $singleContract;
+            }
+        } else {
+            $this->contract[] = $contract;
+        }
 
         return $this;
     }
 
     /**
-     * Get planType
+     * Remove contract
      *
-     * @return \Plan\Entity\PlanType
+     * @param $contract
      */
-    public function getPlanType()
+    public function removeContract($contract)
     {
-        return $this->planType;
+        if ($contract instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($contract as $singleContract) {
+                $this->contract->removeElement($singleContract);
+            }
+        } else {
+            $this->contract->removeElement($contract);
+        }
     }
 
     /**
-     * Set taskStatus
+     * Get contract
      *
-     * @param \Plan\Entity\TaskStatus $taskStatus
-     *
-     * @return Plan
+     * @return \Doctrine\Common\Collections\Collection
      */
-    public function setTaskStatus(\Plan\Entity\TaskStatus $taskStatus = null)
+    public function getContract()
     {
-        $this->taskStatus = $taskStatus;
-
-        return $this;
+        return $this->contract;
     }
 
-    /**
-     * Get taskStatus
-     *
-     * @return \Plan\Entity\TaskStatus
-     */
-    public function getTaskStatus()
-    {
-        return $this->taskStatus;
-    }
 }

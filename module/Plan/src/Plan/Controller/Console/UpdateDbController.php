@@ -35,6 +35,7 @@ class UpdateDbController extends AbstractConsoleController
                 $this->service->updateContract($file);
                 break;
             case 'plan':
+
                 break;
             default:
                 break;

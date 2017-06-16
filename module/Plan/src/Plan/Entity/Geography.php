@@ -57,22 +57,6 @@ class Geography
     private $countyName;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", mappedBy="geography")
-     */
-    private $contract;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->contract = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
-
-    /**
      * Get id
      *
      * @return integer
@@ -200,39 +184,5 @@ class Geography
     public function getCountyName()
     {
         return $this->countyName;
-    }
-
-    /**
-     * Add contract
-     *
-     * @param \Plan\Entity\Contract $contract
-     *
-     * @return Geography
-     */
-    public function addcontract(\Plan\Entity\Contract $contract)
-    {
-        $this->contract[] = $contract;
-
-        return $this;
-    }
-
-    /**
-     * Remove contract
-     *
-     * @param \Plan\Entity\Contract $contract
-     */
-    public function removecontract(\Plan\Entity\Contract $contract)
-    {
-        $this->contract->removeElement($contract);
-    }
-
-    /**
-     * Get contract
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getcontract()
-    {
-        return $this->contract;
     }
 }

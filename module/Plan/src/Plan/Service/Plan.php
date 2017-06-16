@@ -234,5 +234,38 @@ class Plan
 
     }
 
+    public function updateContract($file)
+    {
+        $keys = [];
+        foreach ($file as $index => $row) {
+            if ($index == 0) {
+                $keys = str_getcsv($row);
+                continue;
+            }
+            $array = array_combine($keys, str_getcsv($row));
+            $mapper = new ContractMapper();
+
+            if (!isset($this->contracts[$array['Contract_ID'] . $array['Contract_Year']])){
+                $mapper->hydrate($array);
+                $this->contracts[$array['Contract_ID'] . $array['Contract_Year']] = $mapper;
+            }
+
+            $result = $this->objectManager->getRepository(GeographyEntity::class)->findby(['zipCode' => $array['Zip_Code']]);
+            if ($result){
+                $this->contracts[$array['Contract_ID'] . $array['Contract_Year']]->setGeography($result);
+            }
+            if ($index > 10) {
+                dump($this->contracts);
+                die ();
+            }
+            echo ($index . "\n");
+        }
+
+        foreach ($this->contracts as $contract){
+            $this->objectManager->persist($this->hydrator->hydrate($contract->extract(), new ContractEntity()));
+        }
+        $this->objectManager->flush();
+    }
+
 
 }
