@@ -19,7 +19,8 @@
         "doctrine/doctrine-orm-module": "^1.1",
         "zendframework/zend-console": "^2.6",
         "zendframework/zend-mvc-console": "^1.1",
-        "symfony/var-dumper": "^3.3"
+        "symfony/var-dumper": "^3.3",
+        "jms/serializer": "^1.7"
     },
     "autoload": {
         "psr-4": {

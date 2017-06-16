@@ -80,7 +80,7 @@ class Plan
     /**
      * @var \Plan\Entity\PlanType
      *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\PlanType")
+     * @ORM\ManyToOne(targetEntity="Plan\Entity\PlanType", cascade={"persist", "remove"})
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="plan_type", referencedColumnName="id")
      * })
@@ -90,7 +90,7 @@ class Plan
     /**
      * @var \Plan\Entity\TaskStatus
      *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\TaskStatus")
+     * @ORM\ManyToOne(targetEntity="Plan\Entity\TaskStatus", cascade={"persist", "remove"})
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="task_status", referencedColumnName="id")
      * })
@@ -100,7 +100,7 @@ class Plan
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan")
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan", cascade={"persist", "remove"})
      * @ORM\JoinTable(name="plan_contract",
      *   joinColumns={
      *     @ORM\JoinColumn(name="plan_id", referencedColumnName="id")

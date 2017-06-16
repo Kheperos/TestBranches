@@ -38,7 +38,7 @@ class Contract
     /**
      * @var \Plan\Entity\Organisation
      *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\Organisation")
+     * @ORM\ManyToOne(targetEntity="Plan\Entity\Organisation", cascade={"persist", "remove"})
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="organisation_id", referencedColumnName="id")
      * })
@@ -48,10 +48,10 @@ class Contract
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Geography", inversedBy="constract")
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Geography", inversedBy="contract")
      * @ORM\JoinTable(name="contract_geography",
      *   joinColumns={
-     *     @ORM\JoinColumn(name="constract_id", referencedColumnName="id")
+     *     @ORM\JoinColumn(name="contract_id", referencedColumnName="id")
      *   },
      *   inverseJoinColumns={
      *     @ORM\JoinColumn(name="geography_id", referencedColumnName="id")
@@ -112,7 +112,6 @@ class Contract
      */
     public function setYear($year)
     {
-        dump ($year);
         $this->year = $year;
 
         return $this;
@@ -155,13 +154,19 @@ class Contract
     /**
      * Add geography
      *
-     * @param \Plan\Entity\Geography $geography
+     * @param $geography
      *
      * @return Contract
      */
-    public function addGeography(\Plan\Entity\Geography $geography)
+    public function addGeography($geography)
     {
-        $this->geography[] = $geography;
+        if ($geography instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($geography as $singleGeography) {
+                $this->geography[] = $singleGeography;
+            }
+        } else {
+            $this->geography[] = $geography;
+        }
 
         return $this;
     }
@@ -169,11 +174,17 @@ class Contract
     /**
      * Remove geography
      *
-     * @param \Plan\Entity\Geography $geography
+     * @param $geography
      */
-    public function removeGeography(\Plan\Entity\Geography $geography)
+    public function removeGeography($geography)
     {
-        $this->geography->removeElement($geography);
+        if ($geography instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($geography as $singleGeography) {
+                $this->geography->removeElement($singleGeography);
+            }
+        } else {
+            $this->geography->removeElement($geography);
+        }
     }
 
     /**
@@ -185,4 +196,5 @@ class Contract
     {
         return $this->geography;
     }
+
 }

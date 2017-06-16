@@ -18,7 +18,10 @@ use Plan\Entity\Organisation as OrganisationEntity ;
 use Plan\Entity\Plan as PlanEntity;
 use Plan\Entity\PlanType as PlanTypeEntity;
 use Plan\Entity\TaskStatus as TaskStatusEntity;
+use Plan\Mapper\Contract as ContractMapper;
 use Plan\Mapper\PlanInfo;
+use Zend\Hydrator\ClassMethods;
+use Zend\View\Model\JsonModel;
 
 
 class Plan
@@ -38,7 +41,7 @@ class Plan
         $this->objectManager = $objectManager;
         $this->hydrator      = new DoctrineObject($objectManager);
 
-        $this->contracts     = new \Doctrine\Common\Collections\ArrayCollection;
+        $this->contracts     = [];
         $this->plans         = new \Doctrine\Common\Collections\ArrayCollection;
         $this->organisations = new \Doctrine\Common\Collections\ArrayCollection;
         $this->taskStatus    = new \Doctrine\Common\Collections\ArrayCollection;
@@ -90,11 +93,25 @@ class Plan
     public function create($data)
     {
         $planEntity = $this->hydrator->hydrate($data, new PlanEntity());
-        dump ($planEntity->getContract()->getValues());
+
+        $this->objectManager->persist($planEntity);
+        $this->objectManager->flush();
+
         die();
     }
 
-    public function updateContract($file)
+    public function update($id, $data)
+    {
+        $planEntity = $this->getOne($id);
+        $planEntity = $this->hydrator->hydrate($data, $planEntity);
+
+        $this->objectManager->persist($planEntity);
+        $this->objectManager->flush();
+
+        die();
+    }
+
+    public function updatePlan($file)
     {
         ini_set('max_execution_time', "0");
         ini_set("memory_limit", "6G");
@@ -206,7 +223,7 @@ class Plan
 
             }
 
-            if ($index > 50000) {
+            if ($index > 100000) {
                 break;
             }
 
@@ -218,35 +235,4 @@ class Plan
     }
 
 
-    public function updateLocalContract($file)
-    {
-        ini_set('max_execution_time', "0");
-        ini_set("memory_limit", "6G");
-        $keys = [
-            'StateCode',
-            'StateName',
-            'CountyName',
-            'CountyFipsCode',
-        ];
-
-        foreach ($file as $index => $row) {
-            if ($index > 1) {
-                $array = str_getcsv($row);
-
-                if (!$this->objectManager->getRepository(GeographyEntity::class)->findby([
-                    'countyFipsCode' => $array[0],
-                    'zipCode'        => $array[1],
-                ])
-                ) {
-                    dump($index, 'am gasit');
-                    die();
-//
-//                $entity = $this->hydrator->hydrate($array, new GeographyEntity());
-//                $this->objectManager->persist($entity);
-                }
-            }
-
-        }
-        $this->objectManager->flush();
-    }
 }

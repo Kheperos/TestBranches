@@ -26,13 +26,27 @@ return [
             'plan' => [
                 'type'    => Segment::class,
                 'options' => [
-                    'route'       => '/plan/[/:planid/:page]',
+                    'route'       => '/plan[/:id]',
                     'constraints' => [
-                        'planid'     => '[a-zA-Z0-9_-]*',
-                        'page'   => '[0-9]+',
+                        'id'     => '[a-zA-Z0-9_-]*',
                     ],
                     'defaults' => [
                         'controller'    => PlanController::class,
+                    ],
+                ],
+            ],
+        ],
+    ],
+    'console' => [
+        'router' => [
+            'routes' => [
+                'update' => [
+                    'options' => [
+                        'route'    => 'update [contract|plan]:entity [--verbose|-v]',
+                        'defaults' => [
+                            'controller' => UpdateDbController::class,
+                            'action'     => 'index',
+                        ],
                     ],
                 ],
             ],
@@ -42,18 +56,22 @@ return [
         'factories' => [
             UpdateController::class => Factory\Controller\Update::class,
             PlanController::class => Factory\Controller\Plan::class,
+            UpdateDbController::class => Factory\Controller\Console\UpdateDb::class,
         ],
     ],
 
     'service_manager' => [
         'factories' => [
             Service\Plan::class => Factory\Service\Plan::class,
+            Service\UpdateDb::class => Factory\Service\UpdateDb::class,
         ],
     ],
 
-    'strategies' => array(
-        'ViewJsonStrategy',
-    ),
+    'view-manager' => [
+        'strategies' => array(
+            'ViewJsonStrategy',
+        ),
+    ],
 
     'doctrine' => [
         'driver' => [

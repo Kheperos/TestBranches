@@ -36,7 +36,10 @@ class UpdateController extends AbstractRestfulController
 
     public function getList()
     {
-        ini_set("memory_limit", "6G");
+        ini_set("memory_limit", "3G");
+
+        $this->service->updateContract($file);
+
 
         $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeLessThan30000.csv');
 

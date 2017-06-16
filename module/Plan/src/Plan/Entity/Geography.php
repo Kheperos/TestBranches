@@ -7,8 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Geography
  *
- * @ORM\Table(name="geography")
- * @ORM\Entity
+ * @ORM\Table(name="geography", indexes={@ORM\Index(name="zip_code_idx", columns={"zip_code"})})
+ * @ORM\Entity(readOnly=true)
  */
 class Geography
 {
@@ -61,14 +61,14 @@ class Geography
      *
      * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", mappedBy="geography")
      */
-    private $constract;
+    private $contract;
 
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->constract = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->contract = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -203,36 +203,36 @@ class Geography
     }
 
     /**
-     * Add constract
+     * Add contract
      *
-     * @param \Plan\Entity\Contract $constract
+     * @param \Plan\Entity\Contract $contract
      *
      * @return Geography
      */
-    public function addConstract(\Plan\Entity\Contract $constract)
+    public function addcontract(\Plan\Entity\Contract $contract)
     {
-        $this->constract[] = $constract;
+        $this->contract[] = $contract;
 
         return $this;
     }
 
     /**
-     * Remove constract
+     * Remove contract
      *
-     * @param \Plan\Entity\Contract $constract
+     * @param \Plan\Entity\Contract $contract
      */
-    public function removeConstract(\Plan\Entity\Contract $constract)
+    public function removecontract(\Plan\Entity\Contract $contract)
     {
-        $this->constract->removeElement($constract);
+        $this->contract->removeElement($contract);
     }
 
     /**
-     * Get constract
+     * Get contract
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getConstract()
+    public function getcontract()
     {
-        return $this->constract;
+        return $this->contract;
     }
 }

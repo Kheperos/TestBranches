@@ -16,8 +16,7 @@ class PlanInfo
     protected $type;
     protected $typeDescription;
 
-    protected $contractId;
-    protected $year;
+
 
     protected $organisationName;
     protected $webAddress;
@@ -89,53 +88,7 @@ class PlanInfo
         return $this;
     }
 
-    /**
-     * Get the values of ContractId
-     *
-     * @return mixed
-     */
-    public function getContractId()
-    {
-        return $this->contractId;
-    }
 
-    /**
-     * Sets the value of ContractId
-     *
-     * @param mixed $contractId
-     *
-     * @return PlanInfo
-     */
-    public function setContractId($contractId)
-    {
-        $this->contractId = $contractId;
-
-        return $this;
-    }
-
-    /**
-     * Get the values of Year
-     *
-     * @return mixed
-     */
-    public function getYear()
-    {
-        return $this->year;
-    }
-
-    /**
-     * Sets the value of Year
-     *
-     * @param mixed $year
-     *
-     * @return PlanInfo
-     */
-    public function setYear($year)
-    {
-        $this->year = $year;
-
-        return $this;
-    }
 
     /**
      * Get the values of OrganisationName
