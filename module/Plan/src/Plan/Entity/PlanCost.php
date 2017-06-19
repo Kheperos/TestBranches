@@ -206,4 +206,54 @@ class PlanCost
     {
         return $this->threshold;
     }
+
+    /**
+     * Get the values of Plan
+     *
+     * @return Plan
+     */
+    public function getPlan()
+    {
+        return $this->plan;
+    }
+
+    /**
+     * Sets the value of Plan
+     *
+     * @param Plan $plan
+     *
+     * @return PlanCost
+     */
+    public function setPlan($plan)
+    {
+        $this->plan = $plan;
+
+        return $this;
+    }
+
+    /**
+     * Get the values of Contract
+     *
+     * @return Contract
+     */
+    public function getContract()
+    {
+        return $this->contract;
+    }
+
+    /**
+     * Sets the value of Contract
+     *
+     * @param Contract $contract
+     *
+     * @return PlanCost
+     */
+    public function setContract($contract)
+    {
+        $this->contract = $contract;
+
+        return $this;
+    }
+
+
 }

@@ -17,6 +17,9 @@ use Plan\Mapper\Organisation as OrganisationMapper;
 use Plan\Mapper\Plan as PlanMapper;
 use Plan\Entity\Organisation as OrganisationEntity ;
 use Plan\Entity\Plan as PlanEntity;
+use Plan\Mapper\PlanCost as PlanCostMapper;
+use Plan\Entity\PlanCost as PlanCostEntity;
+
 
 class UpdateDb
 {
@@ -121,8 +124,19 @@ class UpdateDb
 
             $array = array_combine($keys, str_getcsv($row));
             $mapper = new PlanCostMapper();
-            dump ($array);die();
+            $mapper->hydrate($array);
+            $result = $this->objectManager->getRepository(ContractEntity::class)->findOneBy(['contractId' => $array['contract_id']]);
+            if ($result){
+                $mapper->setContract($result);
+            }
+            $result = $this->objectManager->getRepository(PlanEntity::class)->findOneBy(['planId' => $array['plan_id'], 'segmentId' => $array['segment_id']]);
+            if ($result){
+                $mapper->setPlan($result);
+            }
+            $this->objectManager->persist($this->hydrator->hydrate($mapper->extract(), new PlanCostEntity()));
         }
+
+        $this->objectManager->flush();
     }
 
 }

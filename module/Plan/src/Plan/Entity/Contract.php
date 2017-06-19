@@ -79,6 +79,7 @@ class Contract
     public function __construct()
     {
         $this->geography = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->planCost  = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -245,6 +246,53 @@ class Contract
         return $this->plan;
     }
 
+    /**
+     * Get the values of PlanCost
+     *
+     * @return mixed
+     */
+    public function getPlanCost()
+    {
+        return $this->planCost;
+    }
+
+    /**
+     * Sets the value of PlanCost
+     *
+     * @param mixed $planCost
+     *
+     * @return Contract
+     */
+    public function addPlanCost($planCost)
+    {
+        if ($planCost instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($planCost as $singlePlanCost) {
+                $singlePlanCost->setContract($this);
+                $this->planCost[] = $singlePlanCost;
+            }
+        } else {
+            $planCost->setContract($this);
+            $this->planCost[] = $planCost;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove planCost
+     *
+     * @param $planCost
+     */
+    public function removePlanCost($planCost)
+    {
+        if ($planCost instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($planCost as $singlePlanCost) {
+                $this->planCost->removeElement($singlePlanCost);
+            }
+        } else {
+            $this->planCost->removeElement($planCost);
+        }
+    }
 
 
 }

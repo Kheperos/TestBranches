@@ -3,11 +3,14 @@
 namespace Plan\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * PlanController
  *
- * @ORM\Table(name="plan")
+ * @ORM\Table(name="plan", indexes={@ORM\Index(name="plan_index", columns={"plan_id"}), @ORM\Index(name="segment_index", columns={"segment_id"})})
+
  * @ORM\Entity
  */
 class Plan
@@ -117,12 +120,16 @@ class Plan
      *     @ORM\JoinColumn(name="contract_id", referencedColumnName="id")
      *   }
      * )
+     *
+     * @Exclude
      */
     private $contract;
 
     /**
      * One Plan has Many Plan Costs.
      * @ORM\OneToMany(targetEntity="PlanCost", mappedBy="plan")
+     *
+     * @Exclude
      */
     private $planCost;
 
@@ -132,6 +139,7 @@ class Plan
     public function __construct()
     {
         $this->contract = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->planCost = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -479,4 +487,54 @@ class Plan
     {
         return $this->statusDescription;
     }
+
+    /**
+     * Get the values of PlanCost
+     *
+     * @return mixed
+     */
+    public function getPlanCost()
+    {
+        return $this->planCost;
+    }
+
+    /**
+     * Sets the value of PlanCost
+     *
+     * @param mixed $planCost
+     *
+     * @return Plan
+     */
+    public function addPlanCost($planCost)
+    {
+        if ($planCost instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($planCost as $singlePlanCost) {
+                $singlePlanCost->setPlan($this);
+                $this->planCost[] = $singlePlanCost;
+            }
+        } else {
+            $planCost->setPlan($this);
+            $this->planCost[] = $planCost;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove planCost
+     *
+     * @param $planCost
+     */
+    public function removePlanCost($planCost)
+    {
+        if ($planCost instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($planCost as $singlePlanCost) {
+                $this->planCost->removeElement($singlePlanCost);
+            }
+        } else {
+            $this->planCost->removeElement($planCost);
+        }
+    }
+
+
 }

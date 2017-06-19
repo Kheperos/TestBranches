@@ -31,11 +31,11 @@ class PlanController extends AbstractRestfulController
 
     public function get($id)
     {
-        $entity = $this->service->getOne($id);
+        $json = $this->service->getJson1($id);
 
-        $serializer = SerializerBuilder::create()->build();
-        $jsonContent = $serializer->serialize($entity, 'json');
-        echo $jsonContent; die();
+
+
+        echo $json; die();
 
         return new Response($jsonContent);
     }

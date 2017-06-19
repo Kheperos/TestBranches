@@ -16,14 +16,15 @@ use Plan\Entity\Contract as ContractEntity;
 use Plan\Entity\Geography as GeographyEntity;
 use Plan\Entity\Organisation as OrganisationEntity ;
 use Plan\Entity\Plan as PlanEntity;
-use Plan\Entity\PlanType as PlanTypeEntity;
-use Plan\Entity\TaskStatus as TaskStatusEntity;
+use Plan\Entity\PlanCost as PlanCostEntity;
 use Plan\Mapper\Contract as ContractMapper;
 use Plan\Mapper\Organisation as OrganisationMapper;
 use Plan\Mapper\Plan as PlanMapper;
 use Plan\Mapper\PlanInfo;
+use Plan\Mapper\PlanCost as PlanCostMapper;
 use Zend\Hydrator\ClassMethods;
 use Zend\View\Model\JsonModel;
+use JMS\Serializer\SerializerBuilder;
 
 
 class Plan
@@ -44,10 +45,8 @@ class Plan
         $this->hydrator      = new DoctrineObject($objectManager);
 
         $this->contracts     = [];
-        $this->plans         = new \Doctrine\Common\Collections\ArrayCollection;
-        $this->organisations = new \Doctrine\Common\Collections\ArrayCollection;
-        $this->taskStatus    = new \Doctrine\Common\Collections\ArrayCollection;
-        $this->planType      = new \Doctrine\Common\Collections\ArrayCollection;
+        $this->plans         = [];
+        $this->organisations = [];
     }
 
 
@@ -113,127 +112,23 @@ class Plan
         die();
     }
 
-    public function updatePlan1($file)
+    public function getJson($id)
     {
-        ini_set('max_execution_time', "0");
-        ini_set("memory_limit", "6G");
-        $mapper = new PlanInfo();
+        $entity = $this->getOne($id);
 
-        foreach ($file as $index => $row) {
-            if ($index > 1) {
-                $mapper->hydrate(str_getcsv($row));
+        $array = $this->hydrator->extract($entity);
 
-                $criteria = Criteria::create()->where(
-                    Criteria::expr()->andX(
-                        Criteria::expr()->eq('contractId', $mapper->getContractId()),
-                        Criteria::expr()->eq('year', $mapper->getYear())
-                    )
-                );
+        return json_encode($array);
+    }
 
-                $result = $this->contracts->matching($criteria);
-                if ($result->isEmpty()) {
-                    $contractEntity = $this->hydrator->hydrate($mapper->extract(), new ContractEntity());
-                    $this->contracts->add($contractEntity);
-                    $this->objectManager->persist($contractEntity);
-                } else {
-                    $contractEntity = $result->first();
-                }
+    public function getJson1($id)
+    {
+        $entity = $this->getOne($id);
 
-                $criteria = Criteria::create()->where(
-                    Criteria::expr()->andX(
-                        Criteria::expr()->eq('planId', $mapper->getPlanId()),
-                        Criteria::expr()->eq('segmentId', $mapper->getSegmentId()),
-                        Criteria::expr()->eq('name', $mapper->getName()),
-                        Criteria::expr()->eq('geoName', $mapper->getGeoName())
-                    )
-                );
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($entity, 'json');
 
-                $result = $this->plans->matching($criteria);
-                if ($result->isEmpty()) {
-                    $planEntity = $this->hydrator->hydrate($mapper->extract(), new PlanEntity());
-                    $this->plans->add($planEntity);
-                    $this->objectManager->persist($planEntity);
-                } else {
-                    $planEntity = $result->first();
-                }
-
-                if (!$planEntity->getContract()->contains($contractEntity)) {
-                    $planEntity->addContract($contractEntity);
-                }
-
-
-                $criteria = Criteria::create()->where(
-                    Criteria::expr()->andX(
-                        Criteria::expr()->eq('organisationName', $mapper->getOrganisationName()),
-                        Criteria::expr()->eq('webAddress', $mapper->getWebAddress())
-
-                    )
-                );
-
-                $result = $this->organisations->matching($criteria);
-                if ($result->isEmpty()) {
-                    $organisationEntity = $this->hydrator->hydrate($mapper->extract(), new OrganisationEntity());
-                    $this->organisations->add($organisationEntity);
-                    $this->objectManager->persist($organisationEntity);
-                } else {
-                    $organisationEntity = $result->first();
-                }
-
-                $contractEntity->setOrganisation($organisationEntity);
-
-                //plantype
-
-                $criteria = Criteria::create()->where(
-                    Criteria::expr()->andX(
-                        Criteria::expr()->eq('type', $mapper->getType()),
-                        Criteria::expr()->eq('typeDescription', $mapper->getTypeDescription())
-
-                    )
-                );
-
-                $result = $this->planType->matching($criteria);
-                if ($result->isEmpty()) {
-                    $planTypeEntity = $this->hydrator->hydrate($mapper->extract(), new PlanTypeEntity());
-                    $this->planType->add($planTypeEntity);
-                    $this->objectManager->persist($planTypeEntity);
-                } else {
-                    $planTypeEntity = $result->first();
-                }
-
-                $planEntity->setPlanType($planTypeEntity);
-
-                //task status
-
-                $criteria = Criteria::create()->where(
-                    Criteria::expr()->andX(
-                        Criteria::expr()->eq('statusCode', $mapper->getStatusCode()),
-                        Criteria::expr()->eq('statusDescription', $mapper->getStatusDescription())
-
-                    )
-                );
-
-                $result = $this->taskStatus->matching($criteria);
-                if ($result->isEmpty()) {
-                    $taskStatusEntity = $this->hydrator->hydrate($mapper->extract(), new TaskStatusEntity());
-                    $this->taskStatus->add($taskStatusEntity);
-                    $this->objectManager->persist($taskStatusEntity);
-                } else {
-                    $taskStatusEntity = $result->first();
-                }
-
-                $planEntity->setTaskStatus($taskStatusEntity);
-
-            }
-
-            if ($index > 100000) {
-                break;
-            }
-
-        }
-
-        $this->objectManager->flush();
-        die('bored');
-
+        return $jsonContent;
     }
 
     public function updateContract($file)
@@ -282,7 +177,7 @@ class Plan
 
                 if (!isset($this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']])){
                     $mapper = new PlanMapper();
-                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']] = $mapper->hydrate($array);;
+                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']] = $mapper->hydrate($array);
                 }
 
                 $this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']]->setContractId($array['contract_id']);
@@ -314,6 +209,33 @@ class Plan
 
         $this->objectManager->flush();
     }
+
+    public function updatePlanCost($file)
+    {
+        $keys = [];
+        foreach ($file as $index => $row) {
+            if ($index == 0) {
+                $keys = str_getcsv($row);
+                continue;
+            }
+
+            $array = array_combine($keys, str_getcsv($row));
+            $mapper = new PlanCostMapper();
+            $mapper->hydrate($array);
+            $result = $this->objectManager->getRepository(ContractEntity::class)->findOneBy(['contractId' => $array['contract_id']]);
+            if ($result){
+                $mapper->setContract($result);
+            }
+            $result = $this->objectManager->getRepository(PlanEntity::class)->findOneBy(['planId' => $array['plan_id'], 'segmentId' => $array['segment_id']]);
+            if ($result){
+                $mapper->setPlan($result);
+            }
+            $this->objectManager->persist($this->hydrator->hydrate($mapper->extract(), new PlanCostEntity()));
+        }
+
+        $this->objectManager->flush();
+    }
+
 
 
 }
