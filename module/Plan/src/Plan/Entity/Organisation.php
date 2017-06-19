@@ -35,7 +35,11 @@ class Organisation
      */
     private $webAddress;
 
-
+    /**
+     * One Organisation has Many Contracts.
+     * @ORM\OneToMany(targetEntity="Contract", mappedBy="organisation")
+     */
+    private $contract;
 
     /**
      * Get id
@@ -93,5 +97,60 @@ class Organisation
     public function getWebAddress()
     {
         return $this->webAddress;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->contract = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add contract
+     *
+     * @param $contract
+     *
+     * @return Organisation
+     */
+    public function addContract($contract)
+    {
+        if ($contract instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($contract as $singleContract) {
+                $this->contract[] = $singleContract;
+                $singleContract->setOrganisation($this);
+            }
+        } else {
+            $this->contract[] = $contract;
+            $contract->setOrganisation($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove contract
+     *
+     * @param $contract
+     */
+    public function removeContract($contract)
+    {
+        if ($contract instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($contract as $singleContract) {
+                $this->contract->removeElement($singleContract);
+            }
+        } else {
+            $this->contract->removeElement($contract);
+        }
+    }
+
+    /**
+     * Get contract
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getContract()
+    {
+        return $this->contract;
     }
 }

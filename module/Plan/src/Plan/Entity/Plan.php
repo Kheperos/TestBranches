@@ -121,6 +121,12 @@ class Plan
     private $contract;
 
     /**
+     * One Plan has Many Plan Costs.
+     * @ORM\OneToMany(targetEntity="PlanCost", mappedBy="plan")
+     */
+    private $planCost;
+
+    /**
      * Constructor
      */
     public function __construct()

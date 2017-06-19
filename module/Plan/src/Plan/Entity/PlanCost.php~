@@ -1,0 +1,61 @@
+<?php
+
+namespace Plan\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * PlanCost
+ *
+ * @ORM\Table(name="plan_cost")
+ * @ORM\Entity
+ */
+class PlanCost
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="plan_coverage_type_id", type="integer", nullable=false)
+     */
+    private $planCoverageTypeId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="monthly_premium", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $monthlyPremium = '0.00';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="annual_deductible", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $annualDeductible = '0.00';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="included_limit", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $includedLimit = '0.00';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="treshold", type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $treshold = '0.00';
+
+
+}
+

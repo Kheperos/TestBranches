@@ -38,7 +38,7 @@ class Contract
     /**
      * @var \Plan\Entity\Organisation
      *
-     * @ORM\ManyToOne(targetEntity="Plan\Entity\Organisation", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="Plan\Entity\Organisation", inversedBy="contract", cascade={"persist", "remove"})
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="organisation_id", referencedColumnName="id")
      * })
@@ -66,6 +66,12 @@ class Contract
      * )
      */
     private $geography;
+
+    /**
+     * One Contract has Many Plan Costs.
+     * @ORM\OneToMany(targetEntity="PlanCost", mappedBy="contract")
+     */
+    private $planCost;
 
     /**
      * Constructor
@@ -238,4 +244,7 @@ class Contract
     {
         return $this->plan;
     }
+
+
+
 }

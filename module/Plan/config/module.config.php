@@ -42,7 +42,7 @@ return [
             'routes' => [
                 'update' => [
                     'options' => [
-                        'route'    => 'update [contract|plan]:entity [--verbose|-v]',
+                        'route'    => 'update [contract|plan|plan-cost]:entity [--verbose|-v]',
                         'defaults' => [
                             'controller' => UpdateDbController::class,
                             'action'     => 'index',

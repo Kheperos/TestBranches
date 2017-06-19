@@ -30,12 +30,21 @@ class UpdateDbController extends AbstractConsoleController
 
         switch ($entity) {
             case 'contract':
-                ini_set("memory_limit", "2G");
+                ini_set("memory_limit", "1G");
                 $file  = file('/Users/insxcloud/Downloads/files/vwLocalContractServiceAreas.csv');
+
                 $this->service->updateContract($file);
                 break;
             case 'plan':
+                ini_set("memory_limit", "2G");
+                $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeLessThan30000.csv');
 
+                $this->service->updatePlan($file);
+                break;
+            case 'plan-cost':
+                ini_set("memory_limit", "2G");
+                $file  = file('/Users/insxcloud/Downloads/files/vwPlanDrugsCostSharing.csv');
+                $this->service->updatePlanCost($file);
                 break;
             default:
                 break;

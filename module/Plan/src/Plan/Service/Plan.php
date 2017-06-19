@@ -19,6 +19,8 @@ use Plan\Entity\Plan as PlanEntity;
 use Plan\Entity\PlanType as PlanTypeEntity;
 use Plan\Entity\TaskStatus as TaskStatusEntity;
 use Plan\Mapper\Contract as ContractMapper;
+use Plan\Mapper\Organisation as OrganisationMapper;
+use Plan\Mapper\Plan as PlanMapper;
 use Plan\Mapper\PlanInfo;
 use Zend\Hydrator\ClassMethods;
 use Zend\View\Model\JsonModel;
@@ -111,7 +113,7 @@ class Plan
         die();
     }
 
-    public function updatePlan($file)
+    public function updatePlan1($file)
     {
         ini_set('max_execution_time', "0");
         ini_set("memory_limit", "6G");
@@ -264,6 +266,52 @@ class Plan
         foreach ($this->contracts as $contract){
             $this->objectManager->persist($this->hydrator->hydrate($contract->extract(), new ContractEntity()));
         }
+        $this->objectManager->flush();
+    }
+
+    public function updatePlan($file)
+    {
+        $keys = [];
+        foreach ($file as $index => $row) {
+            if ($index == 0) {
+                $keys = str_getcsv($row);
+                continue;
+            }
+            if ($index > 1){
+                $array = array_combine($keys, str_getcsv($row));
+
+                if (!isset($this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']])){
+                    $mapper = new PlanMapper();
+                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']] = $mapper->hydrate($array);;
+                }
+
+                $this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']]->setContractId($array['contract_id']);
+
+                if (!isset($this->organisations[$array['org_name']])){
+                    $mapper = new OrganisationMapper();
+                    $this->organisations[$array['org_name']] = $mapper->hydrate($array);
+                }
+
+                $this->organisations[$array['org_name']]->setContractId($array['contract_id']);
+            }
+
+        }
+
+        foreach ($this->plans as $plan){
+            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $plan->getContractId()]);
+                if ($result){
+                    $plan->setContract($result);
+                    $this->objectManager->persist($this->hydrator->hydrate($plan->extract(), new PlanEntity()));
+                }
+        }
+        foreach ($this->organisations as $organisation){
+            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $organisation->getContractId()]);
+            if ($result){
+                $organisation->setContract($result);
+                $this->objectManager->persist($this->hydrator->hydrate($organisation->extract(), new OrganisationEntity()));
+            }
+        }
+
         $this->objectManager->flush();
     }
 

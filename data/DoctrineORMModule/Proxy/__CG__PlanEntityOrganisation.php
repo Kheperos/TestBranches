@@ -64,10 +64,10 @@ class Organisation extends \Plan\Entity\Organisation implements \Doctrine\ORM\Pr
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'id', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'organisationName', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'webAddress'];
+            return ['__isInitialized__', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'id', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'organisationName', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'webAddress', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'contract'];
         }
 
-        return ['__isInitialized__', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'id', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'organisationName', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'webAddress'];
+        return ['__isInitialized__', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'id', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'organisationName', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'webAddress', '' . "\0" . 'Plan\\Entity\\Organisation' . "\0" . 'contract'];
     }
 
     /**
@@ -230,6 +230,39 @@ class Organisation extends \Plan\Entity\Organisation implements \Doctrine\ORM\Pr
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getWebAddress', []);
 
         return parent::getWebAddress();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addContract($contract)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addContract', [$contract]);
+
+        return parent::addContract($contract);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function removeContract($contract)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeContract', [$contract]);
+
+        return parent::removeContract($contract);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getContract()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getContract', []);
+
+        return parent::getContract();
     }
 
 }
