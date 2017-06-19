@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation\Exclude;
  *
  * @ORM\Table(name="plan", indexes={@ORM\Index(name="plan_index", columns={"plan_id"}), @ORM\Index(name="segment_index", columns={"segment_id"})})
 
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Plan\Repository\Plan")
  */
 class Plan
 {
@@ -111,7 +111,7 @@ class Plan
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan", cascade={"persist", "remove"}, fetch="EAGER")
      * @ORM\JoinTable(name="plan_contract",
      *   joinColumns={
      *     @ORM\JoinColumn(name="plan_id", referencedColumnName="id")
@@ -127,7 +127,7 @@ class Plan
 
     /**
      * One Plan has Many Plan Costs.
-     * @ORM\OneToMany(targetEntity="PlanCost", mappedBy="plan")
+     * @ORM\OneToMany(targetEntity="PlanCost", mappedBy="plan", fetch="EAGER")
      *
      * @Exclude
      */

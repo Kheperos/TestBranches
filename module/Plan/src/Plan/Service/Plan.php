@@ -76,12 +76,19 @@ class Plan
         return $this->objectManager->getRepository(PlanEntity::class)->find($planId);
     }
 
-//    public function getPaginated(Params $params)
-//    {
-//        $paginator = $this->objectManager->getRepository(RuleEntity::class)->getPaginated($params);
-//
-//        return $paginator;
-//    }
+    public function getPaginated($page)
+    {
+        $paginator = $this->objectManager->getRepository(PlanEntity::class)->getPaginated($page);
+
+        $jsonContent = [];
+        $serializer = SerializerBuilder::create()->build();
+
+        foreach ($paginator as $entity){
+            $jsonContent[] = $serializer->serialize($entity, 'json');
+        }
+
+        return $jsonContent;
+    }
 
     public function delete($planId)
     {
@@ -118,6 +125,7 @@ class Plan
 
         $array = $this->hydrator->extract($entity);
 
+        dump ($array);
         return json_encode($array);
     }
 
@@ -151,10 +159,6 @@ class Plan
             if ($result){
                 $this->contracts[$array['Contract_ID'] . $array['Contract_Year']]->setGeography($result);
             }
-            if ($index > 10) {
-                dump($this->contracts);
-                die ();
-            }
             echo ($index . "\n");
         }
 
@@ -175,12 +179,12 @@ class Plan
             if ($index > 1){
                 $array = array_combine($keys, str_getcsv($row));
 
-                if (!isset($this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']])){
+                if (!isset($this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']])){
                     $mapper = new PlanMapper();
-                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']] = $mapper->hydrate($array);
+                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']] = $mapper->hydrate($array);
                 }
 
-                $this->plans[$array['plan_id'] . $array['segment_id'] . $array['contract_id']]->setContractId($array['contract_id']);
+                $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]->setContractId($array['contract_id']);
 
                 if (!isset($this->organisations[$array['org_name']])){
                     $mapper = new OrganisationMapper();
@@ -235,7 +239,4 @@ class Plan
 
         $this->objectManager->flush();
     }
-
-
-
 }
