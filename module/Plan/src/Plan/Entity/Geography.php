@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Geography
  *
- * @ORM\Table(name="geography", indexes={@ORM\Index(name="zip_code_idx", columns={"zip_code"})})
+ * @ORM\Table(name="geography", indexes={@ORM\Index(name="zip_code_idx", columns={"zip_code"}), @ORM\Index(name="county_fips_code_idx", columns={"county_fips_code"})})
  * @ORM\Entity(readOnly=true)
  */
 class Geography

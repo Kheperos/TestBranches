@@ -6,11 +6,13 @@
  * Time: 11:01
  */
 
-namespace Plan\Mapper;
+namespace Plan\Mapper\Json;
 
+use Doctrine\Common\Persistence\ObjectManager;
 use Zend\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Plan\Mapper\EntityMapperInterface;
 
-class Plan
+class Plan implements EntityMapperInterface
 {
     protected $id;
     protected $planId;
@@ -28,12 +30,10 @@ class Plan
     protected $contract = [];
     protected $geography = [];
 
-    protected $contractId = [];
-    protected $countyFIPSCode;
     protected $hydrator;
 
 
-    public function __construct()
+    public function __construct(ObjectManager $objectManager)
     {
         $this->hydrator = new ClassMethodsHydrator();
     }
@@ -398,94 +398,6 @@ class Plan
         foreach ($data as $locationID) {
             $this->geography[$locationID] = $locationID;
         }
-
-        return $this;
-    }
-
-
-    public function setCountyFIPSCode($data)
-    {
-        $this->countyFIPSCode[$data] = $data;
-
-        return $this;
-    }
-
-    public function getCountyFIPSCode()
-    {
-        return $this->countyFIPSCode;
-    }
-
-    public function setContractId($contract)
-    {
-        $this->contractId[$contract] = $contract;
-
-        return $this;
-    }
-
-    public function getContractId()
-    {
-        return $this->contractId;
-    }
-
-    public function setPlanName($data)
-    {
-        $this->setName($data);
-
-        return $this;
-    }
-
-    public function setPlanType($data)
-    {
-        $this->setType($data);
-
-        return $this;
-    }
-
-    public function setPlanTypeDesc($data)
-    {
-        $this->setTypeDescription($data);
-
-        return $this;
-    }
-
-    public function setTaxStusCd($data)
-    {
-        $this->setStatusCode($data);
-
-        return $this;
-    }
-
-    public function setTaxStatusDesc($data)
-    {
-        $this->setStatusDescription($data);
-
-        return $this;
-    }
-
-    public function setLis100($data)
-    {
-        $this->setSubsidyLevel100(str_replace('$', '', $data));
-
-        return $this;
-    }
-
-    public function setLis75($data)
-    {
-        $this->setSubsidyLevel75(str_replace('$', '', $data));
-
-        return $this;
-    }
-
-    public function setLis50($data)
-    {
-        $this->setSubsidyLevel50(str_replace('$', '', $data));
-
-        return $this;
-    }
-
-    public function setLis25($data)
-    {
-        $this->setSubsidyLevel25(str_replace('$', '', $data));
 
         return $this;
     }

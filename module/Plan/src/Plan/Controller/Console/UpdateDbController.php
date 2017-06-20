@@ -36,8 +36,8 @@ class UpdateDbController extends AbstractConsoleController
                 $this->service->updateContract($file);
                 break;
             case 'plan':
-                ini_set("memory_limit", "2G");
-                $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeMoreThan30000.csv');
+                ini_set("memory_limit", "4G");
+                $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeLessThan30000.csv');
 
                 $this->service->updatePlan($file);
                 break;

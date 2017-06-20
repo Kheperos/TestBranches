@@ -10,7 +10,6 @@ use JMS\Serializer\Annotation\Exclude;
  * PlanController
  *
  * @ORM\Table(name="plan", indexes={@ORM\Index(name="plan_index", columns={"plan_id"}), @ORM\Index(name="segment_index", columns={"segment_id"})})
-
  * @ORM\Entity(repositoryClass="Plan\Repository\Plan")
  */
 class Plan
@@ -134,12 +133,28 @@ class Plan
     private $planCost;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Geography")
+     * @ORM\JoinTable(name="plan_geography",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="plan_id", referencedColumnName="id")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="geography_id", referencedColumnName="id")
+     *   }
+     * )
+     */
+    private $geography;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
-        $this->contract = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->planCost = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->contract  = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->planCost  = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->geography = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -536,5 +551,49 @@ class Plan
         }
     }
 
+    /**
+     * Add geography
+     *
+     * @param $geography
+     *
+     * @return Plan
+     */
+    public function addGeography($geography)
+    {
+        if ($geography instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($geography as $singleGeography) {
+                $this->geography[] = $singleGeography;
+            }
+        } else {
+            $this->geography[] = $geography;
+        }
 
+        return $this;
+    }
+
+    /**
+     * Remove geography
+     *
+     * @param $geography
+     */
+    public function removeGeography($geography)
+    {
+        if ($geography instanceof \Doctrine\Common\Collections\ArrayCollection) {
+            foreach ($geography as $singleGeography) {
+                $this->geography->removeElement($singleGeography);
+            }
+        } else {
+            $this->geography->removeElement($geography);
+        }
+    }
+
+    /**
+     * Get geography
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getGeography()
+    {
+        return $this->geography;
+    }
 }
