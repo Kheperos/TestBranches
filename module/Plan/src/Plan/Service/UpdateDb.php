@@ -12,12 +12,13 @@ use Doctrine\Common\Persistence\ObjectManager;
 use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 use Plan\Entity\Contract as ContractEntity;
 use Plan\Entity\Geography as GeographyEntity;
-use Plan\Mapper\Contract as ContractMapper;
-use Plan\Mapper\Organisation as OrganisationMapper;
-use Plan\Mapper\Plan as PlanMapper;
+use Plan\Mapper\Table\Contract as ContractMapper;
+use Plan\Mapper\Table\Geography as GeographyMapper;
+use Plan\Mapper\Table\Organisation as OrganisationMapper;
+use Plan\Mapper\Table\Plan as PlanMapper;
 use Plan\Entity\Organisation as OrganisationEntity ;
 use Plan\Entity\Plan as PlanEntity;
-use Plan\Mapper\PlanCost as PlanCostMapper;
+use Plan\Mapper\Table\PlanCost as PlanCostMapper;
 use Plan\Entity\PlanCost as PlanCostEntity;
 
 
@@ -38,8 +39,26 @@ class UpdateDb
 
     }
 
+    public function updateGeography($file)
+    {
+        $start = time();
+        $keys = [];
+        foreach ($file as $index => $row) {
+            if ($index == 0) {
+                $keys = str_getcsv($row);
+                continue;
+            }
+            $array = array_combine($keys, str_getcsv($row));
+            $this->objectManager->persist($this->hydrator->hydrate((new GeographyMapper())->hydrate($array)->extract(), new GeographyEntity()));
+        }
+
+        $this->objectManager->flush();
+        echo 'It all took ' . (time() - $start) . ' seconds.';die();
+    }
+
     public function updateContract($file)
     {
+        $start = time();
         $keys = [];
         foreach ($file as $index => $row) {
             if ($index == 0) {
@@ -58,18 +77,18 @@ class UpdateDb
             if ($result) {
                 $this->contracts[$array['Contract_ID'] . $array['Contract_Year']]->setGeography($result);
             }
-            echo($index . "\n");
         }
 
         foreach ($this->contracts as $contract) {
             $this->objectManager->persist($this->hydrator->hydrate($contract->extract(), new ContractEntity()));
         }
         $this->objectManager->flush();
+        echo 'It all took ' . (time() - $start) . ' seconds.';die();
     }
 
     public function updatePlan($file)
     {
-        $this->createGeography();
+        $start = time();
         $keys = [];
         foreach ($file as $index => $row) {
             if ($index == 0) {
@@ -85,11 +104,8 @@ class UpdateDb
                 }
 
                 $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]
-                    ->setContractId($array['contract_id']);
-
-                if (isset ($this->geography[$array['CountyFIPSCode']])) {
-                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]->setGeography($this->geography[$array['CountyFIPSCode']]);
-                }
+                    ->setContractId($array['contract_id'])
+                    ->setCountyFIPSCode($array['CountyFIPSCode']);
 
                 if (!isset($this->organisations[$array['org_name']])) {
                     $mapper                                  = new OrganisationMapper();
@@ -99,10 +115,19 @@ class UpdateDb
                 $this->organisations[$array['org_name']]->setContractId($array['contract_id']);
             }
         }
+        $i = 0;
         foreach ($this->plans as $plan) {
+            $i++;
+            echo $i . "\n";
             $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $plan->getContractId()]);
             if ($result) {
                 $plan->setContract($result);
+            }
+            foreach ($plan->getCountyFIPSCode() as $fips) {
+                $result = $this->objectManager->getRepository(GeographyEntity::class)->findOneby(['countyFipsCode' => $fips]);
+                if ($result) {
+                    $plan->setGeography($result);
+                }
             }
             $this->objectManager->persist($this->hydrator->hydrate($plan->extract(), new PlanEntity()));
         }
@@ -115,18 +140,12 @@ class UpdateDb
         }
 
         $this->objectManager->flush();
-    }
-
-    private function createGeography()
-    {
-        $result = $this->objectManager->getRepository(GeographyEntity::class)->findAll();
-        foreach ($result as $geography){
-            $this->geography[$geography->getCountyFipsCode()][] = $geography->getId();
-        }
+        echo 'It all took ' . (time() - $start) . ' seconds.';die();
     }
 
     public function updatePlanCost($file)
     {
+        $start = time();
         $keys = [];
         foreach ($file as $index => $row) {
             if ($index == 0) {
@@ -149,6 +168,7 @@ class UpdateDb
         }
 
         $this->objectManager->flush();
+        echo 'It all took ' . (time() - $start) . ' seconds.';die();
     }
 
 }

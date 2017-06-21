@@ -6,7 +6,7 @@
  * Time: 11:01
  */
 
-namespace Plan\Mapper;
+namespace Plan\Mapper\Table;
 
 use Zend\Hydrator\ClassMethods as ClassMethodsHydrator;
 
@@ -395,9 +395,7 @@ class Plan
      */
     public function setGeography($data)
     {
-        foreach ($data as $locationID) {
-            $this->geography[$locationID] = $locationID;
-        }
+        $this->geography[$data->getId()] = $data->getId();
 
         return $this;
     }

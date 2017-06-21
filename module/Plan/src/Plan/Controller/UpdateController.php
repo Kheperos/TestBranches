@@ -39,7 +39,7 @@ class UpdateController extends AbstractRestfulController
         ini_set('max_execution_time',"0");
         ini_set("memory_limit", "6G");
 
-        $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeLessThan30000.csv');
+        $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeMoreThan30000.csv');
 
         $this->service->updatePlan($file);
 

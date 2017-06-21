@@ -201,13 +201,15 @@ class Paginated
 
     public function setData($data)
     {
-        dump ($data);
         foreach ($data as $entity)
         {
-
+            $this->data[] = $this->mapper->hydrate($entity)->extract();
         }
+    }
 
-        die('dsadsada');
+    public function getData()
+    {
+        return $this->data;
     }
 
     public function __construct(\Plan\Mapper\EntityMapperInterface $mapper)

@@ -6,7 +6,7 @@
  * Time: 11:21
  */
 
-namespace Plan\Mapper;
+namespace Plan\Mapper\Table;
 
 use Zend\Hydrator\ClassMethods as ClassMethodsHydrator;
 

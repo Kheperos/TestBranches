@@ -9,7 +9,8 @@
 namespace Plan\Mapper\Json;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Zend\Hydrator\ClassMethods as ClassMethodsHydrator;
+use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
+use Zend\Hydrator\ClassMethods;
 use Plan\Mapper\EntityMapperInterface;
 
 class Plan implements EntityMapperInterface
@@ -28,14 +29,17 @@ class Plan implements EntityMapperInterface
     protected $subsidyLevel50;
     protected $subsidyLevel25;
     protected $contract = [];
-    protected $geography = [];
 
+    protected $objectManager;
+    protected $doctrineHydrator;
     protected $hydrator;
 
 
     public function __construct(ObjectManager $objectManager)
     {
-        $this->hydrator = new ClassMethodsHydrator();
+        $this->objectManager = $objectManager;
+        $this->doctrineHydrator = new DoctrineObject($objectManager);
+        $this->hydrator = new ClassMethods();
     }
 
     /**
@@ -369,34 +373,9 @@ class Plan implements EntityMapperInterface
      */
     public function setContract($contract)
     {
-        foreach ($contract as $contractId) {
-            $this->contract[$contractId->getId()] = $contractId->getId();
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get the values of Geography
-     *
-     * @return mixed
-     */
-    public function getGeography()
-    {
-        return $this->geography;
-    }
-
-    /**
-     * Sets the value of geography
-     *
-     * @param mixed $geography
-     *
-     * @return Plan
-     */
-    public function setGeography($data)
-    {
-        foreach ($data as $locationID) {
-            $this->geography[$locationID] = $locationID;
+        foreach ($contract as $entity){
+            $mapper = new Contract($this->objectManager);
+            $this->contract[] = $mapper->hydrate($entity)->extract();
         }
 
         return $this;
@@ -404,7 +383,7 @@ class Plan implements EntityMapperInterface
 
     public function hydrate($data)
     {
-        $this->hydrator->hydrate($data, $this);
+        $this->hydrator->hydrate($this->doctrineHydrator->extract($data), $this);
 
         return $this;
     }

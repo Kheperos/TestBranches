@@ -13,6 +13,7 @@ use JMS\Serializer\SerializerBuilder;
 use Plan\Service\Plan as PlanService;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractRestfulController;
+use Zend\View\Model\JsonModel;
 
 class PlanController extends AbstractRestfulController
 {
@@ -25,11 +26,7 @@ class PlanController extends AbstractRestfulController
 
     public function getList()
     {
-        $results = $this->service->getPaginated($this->params()->fromQuery('page', 1));
-
-        echo json_encode($results);
-
-        die();
+        return new JsonModel($this->service->getPaginated($this->params()->fromQuery('page', 1)));
     }
 
     public function get($id)

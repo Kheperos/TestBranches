@@ -29,6 +29,12 @@ class UpdateDbController extends AbstractConsoleController
         $entity = $request->getParam('entity', null); // defaults to 'all'
 
         switch ($entity) {
+            case 'geography':
+                ini_set("memory_limit", "1G");
+                $file  = file('/Users/insxcloud/Downloads/files/vwGeography.csv');
+
+                $this->service->updateGeography($file);
+                break;
             case 'contract':
                 ini_set("memory_limit", "1G");
                 $file  = file('/Users/insxcloud/Downloads/files/vwLocalContractServiceAreas.csv');
@@ -37,7 +43,7 @@ class UpdateDbController extends AbstractConsoleController
                 break;
             case 'plan':
                 ini_set("memory_limit", "4G");
-                $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeLessThan30000.csv');
+                $file  = file('/Users/insxcloud/Downloads/files/PlanInfoCounty_FipsCodeMoreThan30000.csv');
 
                 $this->service->updatePlan($file);
                 break;

@@ -9,20 +9,23 @@
 
 namespace Plan\Service;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectManager;
 use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 use Plan\Entity\Contract as ContractEntity;
+use Plan\Entity\Contract;
 use Plan\Entity\Geography as GeographyEntity;
 use Plan\Entity\Organisation as OrganisationEntity;
 use Plan\Entity\Plan as PlanEntity;
 use Plan\Entity\PlanCost as PlanCostEntity;
-use Plan\Mapper\Contract as ContractMapper;
-use Plan\Mapper\Organisation as OrganisationMapper;
-use Plan\Mapper\Paginated as  PaginatedMapper;
-use Plan\Mapper\Plan as PlanMapper;
-use Plan\Mapper\PlanCost as PlanCostMapper;
+use Plan\Mapper\Table\Contract as ContractMapper;
+use Plan\Mapper\Table\Organisation as OrganisationMapper;
+use Plan\Mapper\Paginated as PaginatedMapper;
+use Plan\Mapper\Table\Plan as PlanMapper;
+use Plan\Mapper\Table\PlanCost as PlanCostMapper;
 use Zend\View\Model\JsonModel;
 use JMS\Serializer\SerializerBuilder;
+use Plan\Mapper\Json\Plan as JsonPlanMapper;
 
 
 class Plan
@@ -31,10 +34,10 @@ class Plan
     protected $objectManager;
     protected $hydratorl;
 
-    protected $contracts = [];
-    protected $plans = [];
+    protected $contracts     = [];
+    protected $plans         = [];
     protected $organisations = [];
-    protected $geography = [];
+    protected $geography     = [];
 
     public function __construct(ObjectManager $objectManager)
     {
@@ -73,13 +76,12 @@ class Plan
     {
         $paginator = $this->objectManager->getRepository(PlanEntity::class)->getPaginated($page);
 
-        $mapper = new PaginatedMapper(PlanMapper::class);
+        $map    = new JsonPlanMapper($this->objectManager);
+        $mapper = new PaginatedMapper($map);
 
         $mapper->hydrate($paginator);
 
-        die('dsadsadas');
-
-        return $jsonContent;
+        return $mapper->extract();
     }
 
     public function delete($planId)
@@ -163,8 +165,8 @@ class Plan
 
     public function updatePlan($file)
     {
-//        $this->createGeography();
-        $keys = [];
+        $start = microtime(true);
+        $keys  = [];
         foreach ($file as $index => $row) {
             if ($index == 0) {
                 $keys = str_getcsv($row);
@@ -174,51 +176,60 @@ class Plan
                 $array = array_combine($keys, str_getcsv($row));
 
                 if (!isset($this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']])) {
-                    $mapper                                                                     = new PlanMapper();
-                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']] = $mapper->hydrate($array);
+                    $entity                                                                     = $this->hydrator->hydrate((new PlanMapper())->hydrate($array)->extract(),
+                        new PlanEntity());
+                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']] = $entity;
+                    $this->objectManager->persist($entity);
                 }
-
-                $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]
-                    ->setContractId($array['contract_id']);
-
-//                if (isset ($this->geography[$array['CountyFIPSCode']])) {
-//                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]->setGeography($this->geography[$array['CountyFIPSCode']]);
-//                }
 
                 if (!isset($this->organisations[$array['org_name']])) {
-                    $mapper                                  = new OrganisationMapper();
-                    $this->organisations[$array['org_name']] = $mapper->hydrate($array);
+                    $entity                                  = $this->hydrator->hydrate((new OrganisationMapper())->hydrate($array)->extract(),
+                        new OrganisationEntity());
+                    $this->organisations[$array['org_name']] = $entity;
+                    $this->objectManager->persist($entity);
                 }
 
-                $this->organisations[$array['org_name']]->setContractId($array['contract_id']);
+                $result = $this->objectManager->getRepository(GeographyEntity::class)->findOneBy(['countyFipsCode' => $array['CountyFIPSCode']]);
 
-            }
-        }
-        foreach ($this->plans as $plan) {
-            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $plan->getContractId()]);
-            if ($result) {
-                $plan->setContract($result);
-            }
-            $this->objectManager->persist($this->hydrator->hydrate($plan->extract(), new PlanEntity()));
-        }
-        foreach ($this->organisations as $organisation) {
-            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $organisation->getContractId()]);
-            if ($result) {
-                $organisation->setContract($result);
-            }
-            $this->objectManager->persist($this->hydrator->hydrate($organisation->extract(), new OrganisationEntity()));
-        }
+                if ($result) {
+                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]->addGeography($result);
+                }
 
+                $result = $this->objectManager->getRepository(ContractEntity::class)->findOneBy(['contractId' => $array['contract_id']]);
+
+                if ($result && !$this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]->getContract()->contains($result)) {
+                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]->addContract($result);
+                }
+
+                if ($result && !$this->organisations[$array['org_name']]->getContract()->contains($result)) {
+                    $this->organisations[$array['org_name']]->addContract($result);
+                }
+                if ($index > 10000) {
+                    break;
+                }
+            }
+        }
         $this->objectManager->flush();
+        echo 'It all took ' . (microtime(true) - $start) . ' seconds.';
+
     }
 
     private function createGeography()
     {
         $result = $this->objectManager->getRepository(GeographyEntity::class)->findAll();
-        foreach ($result as $geography){
-            $this->geography[$geography->getCountyFipsCode()][] = $geography->getId();
+        foreach ($result as $geography) {
+            $this->geography[$geography->getCountyFipsCode()][] = $geography;
         }
     }
+
+    private function createContract()
+    {
+        $result = $this->objectManager->getRepository(ContractEntity::class)->findAll();
+        foreach ($result as $contract) {
+            $this->contracts[$contract->getContractId()] = $contract;
+        }
+    }
+
     public function updatePlanUpdated($file)
     {
         $keys = [];
@@ -257,21 +268,23 @@ class Plan
 
                 $this->organisations[$array['org_name']]->setContractId($array['contract_id']);
 
-                if ($index > 2) break;
+                if ($index > 2) {
+                    break;
+                }
 
                 echo $index . "\n";
             }
         }
 
         foreach ($this->plans as $plan) {
-//            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $plan->getContractId()]);
-//            if ($result) {
-//                $plan->setContract($result);
-//            }
-//            $result = $this->objectManager->getRepository(GeographyEntity::class)->findby(['countyFipsCode' => $plan->getCountyFIPSCode()]);
-//            if ($result) {
-//                $plan->setGeography($result);
-//            }
+            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $plan->getContractId()]);
+            if ($result) {
+                $plan->setContract($result);
+            }
+            $result = $this->objectManager->getRepository(GeographyEntity::class)->findby(['countyFipsCode' => $plan->getCountyFIPSCode()]);
+            if ($result) {
+                $plan->setGeography($result);
+            }
             $this->objectManager->persist($this->hydrator->hydrate($plan->extract(), new PlanEntity()));
         }
         foreach ($this->organisations as $organisation) {
@@ -303,8 +316,8 @@ class Plan
                 }
 
                 $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]
-                    ->setContractId($array['contract_id'])
-                    ->setCountyFIPSCode($array['CountyFIPSCode']);
+                    ->setContractId($array['contract_id']);
+//                    ->setCountyFIPSCode($array['CountyFIPSCode']);
 
                 if (!isset($this->organisations[$array['org_name']])) {
                     $mapper                                  = new OrganisationMapper();
@@ -326,10 +339,10 @@ class Plan
             if ($result) {
                 $plan->setContract($result);
             }
-            $result = $this->objectManager->getRepository(GeographyEntity::class)->findby(['countyFipsCode' => $plan->getCountyFIPSCode()]);
-            if ($result) {
-                $plan->setGeography($result);
-            }
+//            $result = $this->objectManager->getRepository(GeographyEntity::class)->findby(['countyFipsCode' => $plan->getCountyFIPSCode()]);
+//            if ($result) {
+//                $plan->setGeography($result);
+//            }
             $this->objectManager->persist($this->hydrator->hydrate($plan->extract(), new PlanEntity()));
 
 
@@ -356,6 +369,52 @@ class Plan
         $timpTotalEnd = microtime(true);
     }
 
+    public function updatePlanOriginal($file)
+    {
+        $keys = [];
+        foreach ($file as $index => $row) {
+            if ($index == 0) {
+                $keys = str_getcsv($row);
+                continue;
+            }
+            if ($index > 1) {
+                $array = array_combine($keys, str_getcsv($row));
+
+                if (!isset($this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']])) {
+                    $mapper                                                                     = new PlanMapper();
+                    $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']] = $mapper->hydrate($array);
+                }
+
+                $this->plans[$array['plan_id'] . $array['segment_id'] . $array['geo_name']]
+                    ->setContractId($array['contract_id']);
+
+                if (!isset($this->organisations[$array['org_name']])) {
+                    $mapper                                  = new OrganisationMapper();
+                    $this->organisations[$array['org_name']] = $mapper->hydrate($array);
+                }
+
+                $this->organisations[$array['org_name']]->setContractId($array['contract_id']);
+            }
+        }
+        foreach ($this->plans as $index => $plan) {
+            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $plan->getContractId()]);
+            if ($result) {
+                $plan->setContract($result);
+            }
+            $this->objectManager->persist($this->hydrator->hydrate($plan->extract(), new PlanEntity()));
+        }
+        foreach ($this->organisations as $organisation) {
+            $result = $this->objectManager->getRepository(ContractEntity::class)->findby(['contractId' => $organisation->getContractId()]);
+            if ($result) {
+                $organisation->setContract($result);
+            }
+            $this->objectManager->persist($this->hydrator->hydrate($organisation->extract(), new OrganisationEntity()));
+        }
+
+        $this->objectManager->flush();
+    }
+
+
     public function updatePlanCost($file)
     {
         $keys = [];
@@ -372,8 +431,9 @@ class Plan
             if ($result) {
                 $mapper->setContract($result);
             }
-            $result = $this->objectManager->getRepository(PlanEntity::class)->findOneBy(['planId'    => $array['plan_id'],
-                                                                                         'segmentId' => $array['segment_id'],
+            $result = $this->objectManager->getRepository(PlanEntity::class)->findOneBy([
+                'planId'    => $array['plan_id'],
+                'segmentId' => $array['segment_id'],
             ]);
             if ($result) {
                 $mapper->setPlan($result);

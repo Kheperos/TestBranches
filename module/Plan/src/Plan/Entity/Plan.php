@@ -110,7 +110,7 @@ class Plan
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan", cascade={"persist", "remove"}, fetch="EAGER")
+     * @ORM\ManyToMany(targetEntity="Plan\Entity\Contract", inversedBy="plan", cascade={"persist", "remove"})
      * @ORM\JoinTable(name="plan_contract",
      *   joinColumns={
      *     @ORM\JoinColumn(name="plan_id", referencedColumnName="id")
