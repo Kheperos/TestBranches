@@ -9,7 +9,6 @@
 
 namespace Plan\Service;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectManager;
 use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 use Plan\Entity\Contract as ContractEntity;
@@ -23,7 +22,6 @@ use Plan\Mapper\Table\Organisation as OrganisationMapper;
 use Plan\Mapper\Paginated as PaginatedMapper;
 use Plan\Mapper\Table\Plan as PlanMapper;
 use Plan\Mapper\Table\PlanCost as PlanCostMapper;
-use Zend\View\Model\JsonModel;
 use JMS\Serializer\SerializerBuilder;
 use Plan\Mapper\Json\Plan as JsonPlanMapper;
 
@@ -72,9 +70,9 @@ class Plan
         return $this->objectManager->getRepository(PlanEntity::class)->find($planId);
     }
 
-    public function getPaginated($page)
+    public function getPaginated($zipCode, $page = 1)
     {
-        $paginator = $this->objectManager->getRepository(PlanEntity::class)->getPaginated($page);
+        $paginator = $this->objectManager->getRepository(PlanEntity::class)->getPaginated($page, $zipCode);
 
         $map    = new JsonPlanMapper($this->objectManager);
         $mapper = new PaginatedMapper($map);
@@ -116,12 +114,9 @@ class Plan
     public function getJson($id)
     {
         $entity = $this->getOne($id);
+        $mapper = new JsonPlanMapper($this->objectManager);
 
-        $array = $this->hydrator->extract($entity);
-
-        dump($array);
-
-        return json_encode($array);
+        return $mapper->hydrate($entity)->extract();
     }
 
     public function getJson1($id)

@@ -26,18 +26,18 @@ class PlanController extends AbstractRestfulController
 
     public function getList()
     {
-        return new JsonModel($this->service->getPaginated($this->params()->fromQuery('page', 1)));
+        $array = $this->service->getPaginated($this->params()->fromQuery('zipCode'), $this->params()->fromQuery('page'));
+
+        echo json_encode($array); die();
+//        return new JsonModel($array);
     }
 
     public function get($id)
     {
-        $json = $this->service->getJson($id);
+        $array = $this->service->getJson($id);
 
-
-
-        echo $json; die();
-
-        return new Response($jsonContent);
+        echo json_encode($array); die();
+//        return new JsonModel($array);
     }
 
     public function create($data)

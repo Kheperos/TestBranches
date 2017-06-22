@@ -22,7 +22,7 @@ return [
                     'port'     => '3306',
                     'user'     => 'root',
                     'password' => 'g00gle',
-                    'dbname'   => 'zendf3_true',
+                    'dbname'   => 'zendf3',
                 ],
             ],
         ],

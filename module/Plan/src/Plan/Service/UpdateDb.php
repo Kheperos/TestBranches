@@ -66,21 +66,17 @@ class UpdateDb
                 continue;
             }
             $array  = array_combine($keys, str_getcsv($row));
-            $mapper = new ContractMapper();
 
             if (!isset($this->contracts[$array['Contract_ID'] . $array['Contract_Year']])) {
-                $mapper->hydrate($array);
-                $this->contracts[$array['Contract_ID'] . $array['Contract_Year']] = $mapper;
+                $entity = $this->hydrator->hydrate((new ContractMapper())->hydrate($array)->extract(), new ContractEntity());
+                $this->contracts[$array['Contract_ID'] . $array['Contract_Year']] = $entity;
+                $this->objectManager->persist($entity);
             }
 
-            $result = $this->objectManager->getRepository(GeographyEntity::class)->findby(['zipCode' => $array['Zip_Code']]);
-            if ($result) {
-                $this->contracts[$array['Contract_ID'] . $array['Contract_Year']]->setGeography($result);
+            $result = $this->objectManager->getRepository(GeographyEntity::class)->findOneBy(['zipCode' => $array['Zip_Code']]);
+            if ($result  && !$this->contracts[$array['Contract_ID'] . $array['Contract_Year']]->getGeography()->contains($result)) {
+                $this->contracts[$array['Contract_ID'] . $array['Contract_Year']]->addGeography($result);
             }
-        }
-
-        foreach ($this->contracts as $contract) {
-            $this->objectManager->persist($this->hydrator->hydrate($contract->extract(), new ContractEntity()));
         }
         $this->objectManager->flush();
         echo 'It all took ' . (time() - $start) . ' seconds.';die();

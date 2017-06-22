@@ -16,9 +16,17 @@ use Zend\Paginator\Paginator;
 
 class Plan extends EntityRepository
 {
-    public function getPaginated($page)
+    public function getPaginated($page, $zipCode)
     {
-        $queryBuilder = $this->createQueryBuilder('Plan');
+        $queryBuilder = $this->createQueryBuilder('Plan')
+            ->leftJoin('Plan.geography', 'Geography');
+
+        if (isset($zipCode)) {
+            $queryBuilder->where(
+                $queryBuilder->expr()->eq('Geography.zipCode', ':zipCode')
+            )
+                ->setParameter('zipCode', $zipCode);
+        }
 
         $paginator = new Paginator(new DoctrinePaginator(new ORMPaginator($queryBuilder->getQuery())));
 

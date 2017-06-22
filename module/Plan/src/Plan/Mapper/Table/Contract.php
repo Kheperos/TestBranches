@@ -15,14 +15,12 @@ class Contract
     protected $id;
     protected $contractId;
     protected $year;
-    protected $geography = [];
 
     protected $hydrator;
 
     public function __construct()
     {
         $this->hydrator = new ClassMethodsHydrator();
-
     }
 
     /**
@@ -93,32 +91,6 @@ class Contract
     public function setYear($year)
     {
         $this->year = $year;
-
-        return $this;
-    }
-
-    /**
-     * Get the values of Geography
-     *
-     * @return array
-     */
-    public function getGeography()
-    {
-        return $this->geography;
-    }
-
-    /**
-     * Sets the value of Geography
-     *
-     * @param array $geography
-     *
-     * @return Contract
-     */
-    public function setGeography($geography)
-    {
-        foreach ($geography as $location) {
-            $this->geography[$location->getId()] = $location->getId();
-        }
 
         return $this;
     }
